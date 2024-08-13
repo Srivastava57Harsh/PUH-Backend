@@ -1,9 +1,13 @@
 import { Request, Response } from 'express';
 import database from '../../loaders/database';
-import { generateToken } from '../../shared/token';
-import generateOTP from '../../shared/generateOtp';
+import { generateToken, verifyToken } from '../../shared/token';
+import generateOTP from '../../shared/generateOTP';
+import { ObjectId } from 'mongodb';
+import LoggerInstance from '../../loaders/logger';
+import config from '../../config';
+import User from './model';
 
-export const signup = async (req: Request, res: Response) => {
+export async function signup(req: Request, res: Response) {
   try {
     const usersCollection = (await database()).collection('users');
     const { firstName, lastName, email, password } = req.body;
@@ -20,9 +24,9 @@ export const signup = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
-};
+}
 
-export const login = async (req: Request, res: Response) => {
+export async function login(req: Request, res: Response) {
   try {
     const usersCollection = (await database()).collection('users');
     const { email, password } = req.body;
@@ -36,4 +40,27 @@ export const login = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
-};
+}
+
+export async function getProfile(token: string): Promise<User> {
+  let id: string;
+  try {
+    id = verifyToken(token, config.jwtSecret).id;
+  } catch (e) {
+    LoggerInstance.error(e);
+    throw {
+      message: 'Unauthorized Access',
+      status: 401,
+    };
+  }
+  const user = await (await database())
+    .collection('users')
+    .findOne({ _id: new ObjectId(id) }, { projection: { email: 1, name: 1, phone: 1, id: 1 } });
+  if (!user) {
+    throw {
+      message: 'User does not exist',
+      status: 404,
+    };
+  }
+  return user;
+}

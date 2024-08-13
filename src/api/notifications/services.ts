@@ -2,7 +2,6 @@ import nodemailer from 'nodemailer';
 import { google } from 'googleapis';
 
 export const sendBookingConfirmation = async (userEmail: string, speakerEmail: string, sessionDetails: any) => {
-  // Setup email service (example using nodemailer)
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {

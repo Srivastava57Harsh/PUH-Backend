@@ -1,14 +1,8 @@
 import { Request, Response } from 'express';
 import database from '../../loaders/database';
-import * as yup from 'yup';
+import { bookSessionSchema } from './schema';
 
-const bookSessionSchema = yup.object().shape({
-  speakerId: yup.string().required(),
-  date: yup.string().required(),
-  timeSlot: yup.string().required(),
-});
-
-export const bookSession = async (req: Request, res: Response) => {
+export async function bookSession(req: Request, res: Response) {
   try {
     const bookingsCollection = (await database()).collection('bookings');
     await bookSessionSchema.validate(req.body);
@@ -28,4 +22,4 @@ export const bookSession = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
-};
+}

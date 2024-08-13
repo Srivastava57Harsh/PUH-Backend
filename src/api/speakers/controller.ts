@@ -1,16 +1,10 @@
 import { Request, Response } from 'express';
 import database from '../../loaders/database';
-import * as yup from 'yup';
+import { setupProfileSchema } from './schema';
 
-const setupProfileSchema = yup.object().shape({
-  expertise: yup.string().required(),
-  pricePerSession: yup.number().required(),
-});
-
-export const setupProfile = async (req: Request, res: Response) => {
+export async function setupProfile(req: Request, res: Response) {
   try {
     const speakersCollection = (await database()).collection('speakers');
-    await setupProfileSchema.validate(req.body);
     const { expertise, pricePerSession } = req.body;
 
     const speaker = await speakersCollection.insertOne({
@@ -23,9 +17,9 @@ export const setupProfile = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
-};
+}
 
-export const listSpeakers = async (req: Request, res: Response) => {
+export async function listSpeakers(req: Request, res: Response) {
   try {
     const speakersCollection = (await database()).collection('speakers');
     const speakers = await speakersCollection.find().toArray();
@@ -33,4 +27,4 @@ export const listSpeakers = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
-};
+}
