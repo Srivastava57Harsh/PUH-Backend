@@ -1,3 +1,4 @@
+import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import database from '../../loaders/database';
 import { generateToken, verifyToken } from '../../shared/token';
@@ -7,6 +8,15 @@ import LoggerInstance from '../../loaders/logger';
 import config from '../../config';
 import User from './model';
 
+interface DecodedToken {
+  id: string;
+  role: string;
+}
+
+interface AuthenticatedRequest extends Request {
+  user?: DecodedToken;
+}
+
 export async function signup(req: Request, res: Response) {
   try {
     const usersCollection = (await database()).collection('users');
@@ -14,8 +24,17 @@ export async function signup(req: Request, res: Response) {
 
     const userExists = await usersCollection.findOne({ email });
     if (userExists) return res.status(400).json({ message: 'User already exists' });
+    const saltData = bcrypt.genSaltSync(10);
+    const encryptedPassword = bcrypt.hashSync(password, saltData);
 
-    await usersCollection.insertOne({ firstName, lastName, email, password, role: 'user', isVerified: false });
+    await usersCollection.insertOne({
+      firstName,
+      lastName,
+      email,
+      password: encryptedPassword,
+      role: 'user',
+      isVerified: false,
+    });
 
     const otp = generateOTP();
     //sendOTPEmail(email, otp);
@@ -31,36 +50,31 @@ export async function login(req: Request, res: Response) {
     const usersCollection = (await database()).collection('users');
     const { email, password } = req.body;
 
-    const user = await usersCollection.findOne({ email, password });
+    const userExists = await usersCollection.findOne({ email: email });
 
-    if (!user) return res.status(401).json({ message: 'Invalid credentials' });
+    if (!userExists) return res.status(401).json({ message: 'User does not exist!' });
 
-    const token = generateToken(user._id.toString(), user.role);
-    res.json({ token });
+    if (bcrypt.compareSync(password, userExists.password)) {
+      const token = generateToken(userExists._id.toString(), userExists.role);
+      res.json({ token });
+    }
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 }
 
-export async function getProfile(token: string): Promise<User> {
-  let id: string;
-  try {
-    id = verifyToken(token, config.jwtSecret).id;
-  } catch (e) {
-    LoggerInstance.error(e);
-    throw {
-      message: 'Unauthorized Access',
-      status: 401,
-    };
-  }
+export async function getProfile(req: AuthenticatedRequest, res: Response) {
+  const id = req.user.id;
+
   const user = await (await database())
     .collection('users')
-    .findOne({ _id: new ObjectId(id) }, { projection: { email: 1, name: 1, phone: 1, id: 1 } });
+    .findOne({ _id: new ObjectId(id) }, { projection: { email: 1, name: 1, id: 1, role: 1 } });
   if (!user) {
     throw {
       message: 'User does not exist',
       status: 404,
     };
   }
-  return user;
+
+  res.status(201).json(user);
 }

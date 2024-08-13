@@ -1,8 +1,13 @@
 import { Request, Response } from 'express';
 import database from '../../loaders/database';
-import { setupProfileSchema } from './schema';
 
-export async function setupProfile(req: Request, res: Response) {
+interface AuthenticatedRequest extends Request {
+  user: {
+    id: string;
+  };
+}
+
+export async function setupProfile(req: AuthenticatedRequest, res: Response) {
   try {
     const speakersCollection = (await database()).collection('speakers');
     const { expertise, pricePerSession } = req.body;

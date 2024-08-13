@@ -12,9 +12,9 @@ async function startServer() {
   app
     .listen(config.port, () => {
       Logger.info(`
-      ################################################
-      🛡️  Plateup Server listening on port: ${config.port} 🛡️
-      ################################################
+      ###############################################
+       🛡️  Plateup Server listening on port: ${config.port} 🛡️
+      ###############################################
     `);
     })
     .on('error', err => {

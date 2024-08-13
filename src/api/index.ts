@@ -6,9 +6,9 @@ import speakerRouter from './speakers/router';
 export default (): Router => {
   const app = Router();
 
-  app.use('/api/auth', authRouter);
-  app.use('/api/speakers', speakerRouter);
-  app.use('/api/bookings', bookingsRouter);
+  app.use('/auth', authRouter);
+  app.use('/speakers', speakerRouter);
+  app.use('/bookings', bookingsRouter);
 
   return app;
 };

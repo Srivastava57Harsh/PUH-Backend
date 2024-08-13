@@ -2,7 +2,13 @@ import { Request, Response } from 'express';
 import database from '../../loaders/database';
 import { bookSessionSchema } from './schema';
 
-export async function bookSession(req: Request, res: Response) {
+interface AuthenticatedRequest extends Request {
+  user: {
+    id: string;
+  };
+}
+
+export async function bookSession(req: AuthenticatedRequest, res: Response) {
   try {
     const bookingsCollection = (await database()).collection('bookings');
     await bookSessionSchema.validate(req.body);
