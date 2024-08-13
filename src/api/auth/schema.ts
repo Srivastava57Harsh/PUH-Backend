@@ -19,6 +19,12 @@ const getProfile = {
   authorization: yup.string().required(),
 };
 
+const verifyOTP = {
+  email: yup.string().email().required(),
+  otp: yup.string().required(),
+};
+
 export const loginSchema = new yup.ObjectSchema(login);
 export const signupSchema = new yup.ObjectSchema(signUp);
 export const getProfileSchema = new yup.ObjectSchema(getProfile);
+export const verifyOTPSchema = new yup.ObjectSchema(verifyOTP);

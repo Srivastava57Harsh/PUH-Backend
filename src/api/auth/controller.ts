@@ -2,11 +2,8 @@ import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import database from '../../loaders/database';
 import { generateToken, verifyToken } from '../../shared/token';
-import generateOTP from '../../shared/generateOTP';
 import { ObjectId } from 'mongodb';
-import LoggerInstance from '../../loaders/logger';
-import config from '../../config';
-import User from './model';
+import { sendOTP, verifyOTP } from '../../shared/otpService';
 
 interface DecodedToken {
   id: string;
@@ -36,8 +33,7 @@ export async function signup(req: Request, res: Response) {
       isVerified: false,
     });
 
-    const otp = generateOTP();
-    //sendOTPEmail(email, otp);
+    await sendOTP(email);
 
     res.status(201).json({ message: 'User created. Please verify your email.' });
   } catch (error) {
@@ -77,4 +73,19 @@ export async function getProfile(req: AuthenticatedRequest, res: Response) {
   }
 
   res.status(201).json(user);
+}
+
+export async function verifyOtp(req: Request, res: Response) {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({ message: 'Email and OTP are required' });
+    }
+
+    const result = await verifyOTP(email, otp);
+    res.status(200).json({ message: result });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
 }
