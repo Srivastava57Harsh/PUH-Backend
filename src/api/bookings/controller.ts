@@ -33,16 +33,22 @@ export async function bookSession(req: AuthenticatedRequest, res: Response) {
       return res.status(400).json({ message: 'Time slot already booked for this speaker.' });
     }
 
-    const booking = await bookingsCollection.insertOne({
+    const booking = {
       userId: req.user.id,
-      speakerId,
-      date,
-      timeSlot,
-    });
+      speakerId: speakerId,
+      userEmail: user.email,
+      speakerEmail: speaker.email,
+      sessionDetails: {
+        date,
+        timeSlot,
+      },
+    };
+
+    const result = await bookingsCollection.insertOne(booking);
 
     res.status(201).json({
       message: 'Time slot has been booked. You will shortly receive the email.',
-      bookingId: booking.insertedId,
+      bookingId: result.insertedId,
     });
   } catch (error) {
     LoggerInstance.error(error);

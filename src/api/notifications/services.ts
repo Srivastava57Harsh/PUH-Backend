@@ -7,7 +7,13 @@ import { ObjectId } from 'mongodb';
 
 dotenv.config();
 
-export const sendBookingConfirmation = async (userEmail: string, speakerEmail: string, sessionDetails: any) => {
+export const sendBookingConfirmation = async (
+  userEmail: string,
+  speakerEmail: string,
+  title: string,
+  description: string,
+  sessionDetails: any,
+) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -26,8 +32,8 @@ export const sendBookingConfirmation = async (userEmail: string, speakerEmail: s
   );
 
   const sessionDetailsString = `
-    Title: ${sessionDetails.title}
-    Description: ${sessionDetails.description}
+    Title: ${title}
+    Description: ${description}
     Date: ${sessionDetails.date}
     Start Time: ${startTimeFormatted}
     End Time: ${endTimeFormatted}
@@ -43,9 +49,13 @@ export const sendBookingConfirmation = async (userEmail: string, speakerEmail: s
   await transporter.sendMail(mailOptions);
 };
 
-export const createGoogleCalendarEvent = async (userEmail: string, speakerEmail: string, sessionDetails: any) => {
-
-
+export const createGoogleCalendarEvent = async (
+  userEmail: string,
+  speakerEmail: string,
+  title: string,
+  description: string,
+  sessionDetails: any,
+) => {
   const { OAuth2 } = google.auth;
   const oAuth2Client = new OAuth2(
     process.env.GOOGLE_CLIENT_ID,
@@ -63,8 +73,8 @@ export const createGoogleCalendarEvent = async (userEmail: string, speakerEmail:
   const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
 
   const event = {
-    summary: sessionDetails.title,
-    description: sessionDetails.description,
+    summary: title,
+    description: description,
     start: { dateTime: startDateTime.toISOString() },
     end: { dateTime: endDateTime.toISOString() },
     attendees: [{ email: userEmail }, { email: speakerEmail }],
@@ -72,6 +82,9 @@ export const createGoogleCalendarEvent = async (userEmail: string, speakerEmail:
 
   await calendar.events.insert({ calendarId: 'primary', requestBody: event });
 };
+
+// This function (verifyBooking) was created to deal with payloads that were used previously. Now not being used, but can help for reference.
+// - Author (Harsh)
 
 export const verifyBooking = async (
   sessionId: string,

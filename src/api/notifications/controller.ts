@@ -1,15 +1,23 @@
-// controllers/yourController.ts
 import { Request, Response } from 'express';
-import { sendBookingConfirmation, createGoogleCalendarEvent, verifyBooking } from './services';
+import { sendBookingConfirmation, createGoogleCalendarEvent } from './services';
 import LoggerInstance from '../../loaders/logger';
+import database from '../../loaders/database';
+import { ObjectId } from 'mongodb';
 
 export async function sendEmailNotification(req: Request, res: Response) {
   try {
-    const { sessionId, userEmail, speakerEmail, sessionDetails } = req.body;
+    const { sessionId, title, description } = req.body;
 
-    await verifyBooking(sessionId, userEmail, speakerEmail, sessionDetails);
+    const bookingsCollection = (await database()).collection('bookings');
+    const booking = await bookingsCollection.findOne({ _id: new ObjectId(sessionId) });
 
-    await sendBookingConfirmation(userEmail, speakerEmail, sessionDetails);
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    const { userEmail, speakerEmail, sessionDetails } = booking;
+
+    await sendBookingConfirmation(userEmail, speakerEmail, title, description, sessionDetails);
     res.status(200).json({ message: 'Email notification sent successfully' });
   } catch (error) {
     LoggerInstance.error(error);
@@ -19,11 +27,18 @@ export async function sendEmailNotification(req: Request, res: Response) {
 
 export async function createCalendarInvite(req: Request, res: Response) {
   try {
-    const { sessionId, userEmail, speakerEmail, sessionDetails } = req.body;
+    const { sessionId, title, description } = req.body;
 
-    await verifyBooking(sessionId, userEmail, speakerEmail, sessionDetails);
+    const bookingsCollection = (await database()).collection('bookings');
+    const booking = await bookingsCollection.findOne({ _id: new ObjectId(sessionId) });
 
-    await createGoogleCalendarEvent(userEmail, speakerEmail, sessionDetails);
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    const { userEmail, speakerEmail, sessionDetails } = booking;
+
+    await createGoogleCalendarEvent(userEmail, speakerEmail, title, description, sessionDetails);
     res.status(200).json({ message: 'Google Calendar invite sent successfully' });
   } catch (error) {
     LoggerInstance.error(error);
