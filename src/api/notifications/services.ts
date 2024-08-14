@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { format, parse } from 'date-fns';
 import database from '../../loaders/database';
 import { ObjectId } from 'mongodb';
+import { SessionDetails } from './model';
 
 dotenv.config();
 
@@ -12,7 +13,7 @@ export const sendBookingConfirmation = async (
   speakerEmail: string,
   title: string,
   description: string,
-  sessionDetails: any,
+  sessionDetails: SessionDetails,
 ) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -54,7 +55,7 @@ export const createGoogleCalendarEvent = async (
   speakerEmail: string,
   title: string,
   description: string,
-  sessionDetails: any,
+  sessionDetails: SessionDetails,
 ) => {
   const { OAuth2 } = google.auth;
   const oAuth2Client = new OAuth2(
@@ -90,7 +91,7 @@ export const verifyBooking = async (
   sessionId: string,
   userEmail: string,
   speakerEmail: string,
-  sessionDetails: any,
+  sessionDetails: SessionDetails,
 ) => {
   const bookingsCollection = (await database()).collection('bookings');
   const usersCollection = (await database()).collection('profiles');
