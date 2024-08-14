@@ -16,8 +16,8 @@ interface AuthenticatedRequest extends Request {
 
 export async function signup(req: Request, res: Response) {
   try {
-    const usersCollection = (await database()).collection('users');
-    const { firstName, lastName, email, password } = req.body;
+    const usersCollection = (await database()).collection('profiles');
+    const { firstName, lastName, email, password, role } = req.body;
 
     const userExists = await usersCollection.findOne({ email });
     if (userExists) return res.status(400).json({ message: 'User already exists' });
@@ -29,7 +29,7 @@ export async function signup(req: Request, res: Response) {
       lastName,
       email,
       password: encryptedPassword,
-      role: 'user',
+      role: role,
       isVerified: false,
     });
 
@@ -43,7 +43,7 @@ export async function signup(req: Request, res: Response) {
 
 export async function login(req: Request, res: Response) {
   try {
-    const usersCollection = (await database()).collection('users');
+    const usersCollection = (await database()).collection('profiles');
     const { email, password } = req.body;
 
     const userExists = await usersCollection.findOne({ email: email });

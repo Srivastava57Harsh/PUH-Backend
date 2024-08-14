@@ -4,7 +4,7 @@ import nodemailer from 'nodemailer';
 
 export async function sendOTP(email: string) {
   try {
-    const usersCollection = (await database()).collection('users');
+    const usersCollection = (await database()).collection('profiles');
     const user = await usersCollection.findOne({ email });
 
     if (!user) {
@@ -40,7 +40,7 @@ export async function sendOTP(email: string) {
 
 export async function verifyOTP(email: string, otp: string): Promise<string> {
   try {
-    const usersCollection = (await database()).collection('users');
+    const usersCollection = (await database()).collection('profiles');
     const user = await usersCollection.findOne({ email });
 
     if (!user) {

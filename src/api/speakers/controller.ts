@@ -18,7 +18,7 @@ export async function setupProfile(req: AuthenticatedRequest, res: Response) {
       pricePerSession,
     });
 
-    res.status(201).json(speaker);
+    res.status(201).json({ message: 'Speaker profile set up successful' });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
