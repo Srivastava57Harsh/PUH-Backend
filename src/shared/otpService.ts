@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import database from '../loaders/database';
 import nodemailer from 'nodemailer';
+import LoggerInstance from '../loaders/logger';
 
 export async function sendOTP(email: string) {
   try {
@@ -31,9 +32,9 @@ export async function sendOTP(email: string) {
     };
 
     await transporter.sendMail(mailOptions);
-    console.log('OTP email sent successfully');
+    LoggerInstance.info('OTP email sent successfully');
   } catch (error) {
-    console.error('Error sending OTP:', error.message);
+    LoggerInstance.error('Error sending OTP:', error.message);
     throw error;
   }
 }
@@ -62,7 +63,7 @@ export async function verifyOTP(email: string, otp: string): Promise<string> {
 
     return 'User verified successfully';
   } catch (error) {
-    console.error('Error verifying OTP:', error.message);
+    LoggerInstance.error('Error verifying OTP:', error.message);
     throw error;
   }
 }

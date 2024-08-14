@@ -2,27 +2,9 @@ import { Request, Response } from 'express';
 import database from '../../loaders/database';
 import { bookSessionSchema } from './schema';
 import { ObjectId } from 'mongodb';
-
-interface AuthenticatedRequest extends Request {
-  user: {
-    id: string;
-  };
-}
-
-function isValidTimeSlot(timeSlot: { start: string; end: string }): boolean {
-  const startHour = parseInt(timeSlot.start.split(':')[0], 10);
-  const endHour = parseInt(timeSlot.end.split(':')[0], 10);
-
-  if (startHour < 9 || endHour > 16) {
-    return false;
-  }
-
-  if (endHour - startHour !== 1 || timeSlot.start.split(':')[1] !== '00' || timeSlot.end.split(':')[1] !== '00') {
-    return false;
-  }
-
-  return true;
-}
+import { isBookingInFuture, isValidTimeSlot } from './services';
+import { AuthenticatedRequest } from './model';
+import LoggerInstance from '../../loaders/logger';
 
 export async function bookSession(req: AuthenticatedRequest, res: Response) {
   try {
@@ -42,6 +24,10 @@ export async function bookSession(req: AuthenticatedRequest, res: Response) {
       return res.status(400).json({ message: 'Invalid or unsupported time slot' });
     }
 
+    if (!isBookingInFuture(date, timeSlot)) {
+      return res.status(400).json({ message: 'The booking date and time must be in the future.' });
+    }
+
     const existingBooking = await bookingsCollection.findOne({ speakerId, date, timeSlot });
     if (existingBooking) {
       return res.status(400).json({ message: 'Time slot already booked for this speaker.' });
@@ -59,6 +45,7 @@ export async function bookSession(req: AuthenticatedRequest, res: Response) {
       bookingId: booking.insertedId,
     });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    LoggerInstance.error(error);
+    res.status(500).json({ message: error.message });
   }
 }

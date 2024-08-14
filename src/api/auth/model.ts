@@ -1,3 +1,5 @@
+import { Request } from 'express';
+
 interface User {
   firstName: string;
   lastName: string;
@@ -7,6 +9,15 @@ interface User {
   isVerified: boolean;
   role: string;
   otp: string;
+}
+
+export interface DecodedToken {
+  id: string;
+  role: string;
+}
+
+export interface AuthenticatedRequest extends Request {
+  user?: DecodedToken;
 }
 
 export default User;

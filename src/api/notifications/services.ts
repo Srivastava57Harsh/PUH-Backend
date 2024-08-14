@@ -44,7 +44,7 @@ export const sendBookingConfirmation = async (userEmail: string, speakerEmail: s
 };
 
 export const createGoogleCalendarEvent = async (userEmail: string, speakerEmail: string, sessionDetails: any) => {
-  console.log(sessionDetails);
+
 
   const { OAuth2 } = google.auth;
   const oAuth2Client = new OAuth2(

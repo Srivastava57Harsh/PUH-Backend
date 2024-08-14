@@ -7,7 +7,7 @@ const signUp = {
   password: yup.string().min(8).required(),
   role: yup.string().required(),
   //   otp: yup.string().required(),
-  isVerified: yup.boolean().required(),
+  //   isVerified: yup.boolean().required(),
 };
 
 const login = {
@@ -15,9 +15,9 @@ const login = {
   password: yup.string().required(),
 };
 
-const getProfile = {
-  authorization: yup.string().required(),
-};
+// const getProfile = {
+//   authorization: yup.string().required(),
+// };
 
 const verifyOTP = {
   email: yup.string().email().required(),
@@ -26,5 +26,5 @@ const verifyOTP = {
 
 export const loginSchema = new yup.ObjectSchema(login);
 export const signupSchema = new yup.ObjectSchema(signUp);
-export const getProfileSchema = new yup.ObjectSchema(getProfile);
+// export const getProfileSchema = new yup.ObjectSchema(getProfile);
 export const verifyOTPSchema = new yup.ObjectSchema(verifyOTP);

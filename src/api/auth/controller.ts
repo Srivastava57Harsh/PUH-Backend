@@ -1,18 +1,11 @@
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import database from '../../loaders/database';
-import { generateToken, verifyToken } from '../../shared/token';
+import { generateToken } from '../../shared/token';
 import { ObjectId } from 'mongodb';
 import { sendOTP, verifyOTP } from '../../shared/otpService';
-
-interface DecodedToken {
-  id: string;
-  role: string;
-}
-
-interface AuthenticatedRequest extends Request {
-  user?: DecodedToken;
-}
+import { AuthenticatedRequest } from './model';
+import LoggerInstance from '../../loaders/logger';
 
 export async function signup(req: Request, res: Response) {
   try {
@@ -37,7 +30,8 @@ export async function signup(req: Request, res: Response) {
 
     res.status(201).json({ message: 'User created. Please verify your email.' });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    LoggerInstance.error(error);
+    res.status(500).json({ message: error.message });
   }
 }
 
@@ -55,24 +49,28 @@ export async function login(req: Request, res: Response) {
       res.json({ token });
     }
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    LoggerInstance.error(error);
+    res.status(500).json({ message: error.message });
   }
 }
 
 export async function getProfile(req: AuthenticatedRequest, res: Response) {
-  const id = req.user.id;
-
-  const user = await (await database())
-    .collection('users')
-    .findOne({ _id: new ObjectId(id) }, { projection: { email: 1, name: 1, id: 1, role: 1 } });
-  if (!user) {
-    throw {
-      message: 'User does not exist',
-      status: 404,
-    };
+  try {
+    const id = req.user.id;
+    const user = await (await database())
+      .collection('users')
+      .findOne({ _id: new ObjectId(id) }, { projection: { email: 1, name: 1, id: 1, role: 1 } });
+    if (!user) {
+      throw {
+        message: 'User does not exist',
+        status: 404,
+      };
+    }
+    res.status(201).json(user);
+  } catch (error) {
+    LoggerInstance.error(error);
+    res.status(500).json({ message: error.message });
   }
-
-  res.status(201).json(user);
 }
 
 export async function verifyOtp(req: Request, res: Response) {
@@ -86,6 +84,7 @@ export async function verifyOtp(req: Request, res: Response) {
     const result = await verifyOTP(email, otp);
     res.status(200).json({ message: result });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    LoggerInstance.error(error);
+    res.status(500).json({ message: error.message });
   }
 }

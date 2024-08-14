@@ -21,7 +21,6 @@ export const authenticateToken = (req: AuthenticatedRequest, res: Response, next
     jwt.verify(token, config.jwtSecret, (err, decoded) => {
       if (err) return res.sendStatus(403);
       req.user = decoded as DecodedToken;
-
       next();
     });
   } catch (e) {
@@ -37,6 +36,6 @@ export const authorizeRole = (roles: string[]) => (req: AuthenticatedRequest, re
   if (!req.user || !roles.includes(req.user.role)) {
     return res.status(403).json({ message: 'Access denied' });
   }
-  console.log('Authorized');
+  LoggerInstance.info('Authrized');
   next();
 };
