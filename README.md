@@ -40,8 +40,8 @@ The Plateup Backend is a Node.js application that serves as the backend for the 
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/yourusername/plateup-backend.git
-   cd plateup-backend
+   git clone https://github.com/Srivastava57Harsh/PUH-Backend.git
+   cd PUH-backend
    ```
 
 2. **Install dependencies:**
