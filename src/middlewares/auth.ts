@@ -46,7 +46,7 @@ export const checkUserVerification = async (req: AuthenticatedRequest, res: Resp
     const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'Profile not found' });
     }
 
     if (!user.isVerified) {

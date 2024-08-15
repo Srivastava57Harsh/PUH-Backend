@@ -2,11 +2,17 @@ import { Request, Response } from 'express';
 import database from '../../loaders/database';
 import { AuthenticatedRequest } from './model';
 import LoggerInstance from '../../loaders/logger';
-import { ObjectId } from 'mongodb';
 
 export async function setupProfile(req: AuthenticatedRequest, res: Response) {
   try {
     const speakersCollection = (await database()).collection('speakers');
+
+    const existingProfile = await speakersCollection.findOne({ userId: req.user.id });
+
+    if (existingProfile) {
+      return res.status(400).json({ message: 'Speaker already exists for this profile' });
+    }
+
     const { expertise, pricePerSession } = req.body;
 
     await speakersCollection.insertOne({

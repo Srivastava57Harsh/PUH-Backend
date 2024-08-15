@@ -13,7 +13,7 @@ export async function signup(req: Request, res: Response) {
     const { firstName, lastName, email, password, role } = req.body;
 
     const userExists = await usersCollection.findOne({ email });
-    if (userExists) return res.status(400).json({ message: 'User already exists' });
+    if (userExists) return res.status(400).json({ message: 'Profile already exists' });
     const saltData = bcrypt.genSaltSync(10);
     const encryptedPassword = bcrypt.hashSync(password, saltData);
 
@@ -28,7 +28,7 @@ export async function signup(req: Request, res: Response) {
 
     await sendOTP(email);
 
-    res.status(201).json({ message: 'User created. Please verify your email.' });
+    res.status(201).json({ message: 'Profile created. Please verify your email.' });
   } catch (error) {
     LoggerInstance.error(error);
     res.status(500).json({ message: error.message });
@@ -42,7 +42,7 @@ export async function login(req: Request, res: Response) {
 
     const userExists = await usersCollection.findOne({ email: email });
 
-    if (!userExists) return res.status(401).json({ message: 'User does not exist!' });
+    if (!userExists) return res.status(401).json({ message: 'Profile does not exist!' });
 
     if (bcrypt.compareSync(password, userExists.password)) {
       const token = generateToken(userExists._id.toString(), userExists.role);
@@ -78,11 +78,11 @@ export async function verifyOtp(req: AuthenticatedRequest, res: Response) {
 
     const user = await usersCollection.findOne({ _id: new ObjectId(id) });
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'Profile not found' });
     }
 
     if (user.isVerified) {
-      return res.status(400).json({ message: 'User is already verified.' });
+      return res.status(400).json({ message: 'Profile is already verified.' });
     }
 
     const { otp } = req.body;
@@ -106,11 +106,11 @@ export async function resendOTP(req: AuthenticatedRequest, res: Response) {
 
     const user = await usersCollection.findOne({ _id: new ObjectId(id) });
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'Profile not found' });
     }
 
     if (user.isVerified) {
-      return res.status(400).json({ message: 'User is already verified.' });
+      return res.status(400).json({ message: 'Profile is already verified.' });
     }
 
     await sendOTP(user.email);

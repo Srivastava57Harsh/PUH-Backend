@@ -9,7 +9,7 @@ export async function sendOTP(email: string) {
     const user = await usersCollection.findOne({ email });
 
     if (!user) {
-      throw new Error('User not found');
+      throw new Error('Profile not found');
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -45,7 +45,7 @@ export async function verifyOTP(email: string, otp: string): Promise<string> {
     const user = await usersCollection.findOne({ email });
 
     if (!user) {
-      throw new Error('User not found');
+      throw new Error('Profile not found');
     }
 
     const otpExpirationTime = new Date(user.otpCreatedAt);
@@ -61,7 +61,7 @@ export async function verifyOTP(email: string, otp: string): Promise<string> {
 
     await usersCollection.updateOne({ email }, { $set: { isVerified: true }, $unset: { otp: '', otpCreatedAt: '' } });
 
-    return 'User verified successfully';
+    return 'Profile verified successfully';
   } catch (error) {
     LoggerInstance.error('Error verifying OTP:', error.message);
     throw error;
