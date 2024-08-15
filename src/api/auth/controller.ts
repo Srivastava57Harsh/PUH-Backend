@@ -71,12 +71,12 @@ export async function getProfile(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-export async function verifyOtp(req: AuthenticatedRequest, res: Response) {
+export async function verifyOtp(req: Request, res: Response) {
   try {
-    const id = req.user.id;
+    const { email, otp } = req.body;
     const usersCollection = (await database()).collection('profiles');
 
-    const user = await usersCollection.findOne({ _id: new ObjectId(id) });
+    const user = await usersCollection.findOne({ email: email });
     if (!user) {
       return res.status(404).json({ message: 'Profile not found' });
     }
@@ -84,8 +84,6 @@ export async function verifyOtp(req: AuthenticatedRequest, res: Response) {
     if (user.isVerified) {
       return res.status(400).json({ message: 'Profile is already verified.' });
     }
-
-    const { otp } = req.body;
 
     if (!otp) {
       return res.status(400).json({ message: 'OTP is required' });
@@ -99,12 +97,17 @@ export async function verifyOtp(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-export async function resendOTP(req: AuthenticatedRequest, res: Response) {
+export async function resendOTP(req: Request, res: Response) {
   try {
-    const id = req.user.id;
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(404).json({ message: 'Email id missing, Profile not found' });
+    }
+
     const usersCollection = (await database()).collection('profiles');
 
-    const user = await usersCollection.findOne({ _id: new ObjectId(id) });
+    const user = await usersCollection.findOne({ email: email });
     if (!user) {
       return res.status(404).json({ message: 'Profile not found' });
     }
@@ -113,7 +116,7 @@ export async function resendOTP(req: AuthenticatedRequest, res: Response) {
       return res.status(400).json({ message: 'Profile is already verified.' });
     }
 
-    await sendOTP(user.email);
+    await sendOTP(email);
 
     res.status(200).json({ message: 'OTP has been resent to your email.' });
   } catch (error) {

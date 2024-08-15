@@ -41,15 +41,15 @@ export async function loginValidator(req: Request, res: Response, next: NextFunc
 //   }
 // }
 
-// export async function otpPayloadValidator(req: Request, res: Response, next: NextFunction): Promise<void> {
-//   try {
-//     req.body = await verifyOTPSchema.validate(req.body, { stripUnknown: true });
-//     next();
-//   } catch (e) {
-//     LoggerInstance.error(e);
-//     res.status(422).json({
-//       message: 'OTP payload validation failed',
-//       error: e.errors.map(error => error),
-//     });
-//   }
-// }
+export async function otpPayloadValidator(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    req.body = await verifyOTPSchema.validate(req.body, { stripUnknown: true });
+    next();
+  } catch (e) {
+    LoggerInstance.error(e);
+    res.status(422).json({
+      message: 'OTP payload validation failed',
+      error: e.errors.map(error => error),
+    });
+  }
+}

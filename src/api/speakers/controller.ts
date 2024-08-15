@@ -16,7 +16,7 @@ export async function setupProfile(req: AuthenticatedRequest, res: Response) {
     const { expertise, pricePerSession } = req.body;
 
     await speakersCollection.insertOne({
-      userId: req.user.id,
+      profileId: req.user.id,
       expertise,
       pricePerSession,
     });

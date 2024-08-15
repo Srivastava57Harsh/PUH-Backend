@@ -27,10 +27,15 @@ export async function bookSession(req: AuthenticatedRequest, res: Response) {
     if (!isBookingInFuture(date, timeSlot)) {
       return res.status(400).json({ message: 'The booking date and time must be in the future.' });
     }
+    const existingBooking = await bookingsCollection.findOne({
+      speakerId,
+      'sessionDetails.date': date,
+      'sessionDetails.timeSlot.start': timeSlot.start,
+      'sessionDetails.timeSlot.end': timeSlot.end,
+    });
 
-    const existingBooking = await bookingsCollection.findOne({ speakerId, date, timeSlot });
     if (existingBooking) {
-      return res.status(400).json({ message: 'Time slot already booked for this speaker.' });
+      return res.status(400).json({ message: 'This time slot already booked for this speaker.' });
     }
 
     const booking = {
