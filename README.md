@@ -5,6 +5,7 @@
 The Plateup Backend is a Node.js application that serves as the backend for the Plateup platform. It is responsible for managing authentication, bookings, notifications, and speaker-related functionalities. The backend is built with Express, and it utilizes MongoDB as its database.
 
 ## BACKEND URI IS LIVE AND DEPLOYED : [LIVE URI](https://puh-backend-8tak.onrender.com/)
+- **Use the live demo URI directly to avoid setting up the server on local machine.**
 
 ## API Documentation
 
