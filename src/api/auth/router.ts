@@ -1,13 +1,14 @@
 import { Router } from 'express';
-import { signup, login, getProfile, verifyOtp } from './controller';
-import { authenticateToken } from '../../middlewares/auth';
-import { loginValidator, otpPayloadValidator, signUpValidator } from './validator';
+import { signup, login, getProfile, verifyOtp, resendOTP } from './controller';
+import { authenticateToken, checkUserVerification } from '../../middlewares/auth';
+import { loginValidator, signUpValidator } from './validator';
 
 const authRouter = Router();
 
 authRouter.post('/signup', signUpValidator, signup);
-authRouter.post('/verify', otpPayloadValidator, verifyOtp);
+authRouter.post('/verify', authenticateToken, verifyOtp);
 authRouter.post('/login', loginValidator, login);
-authRouter.get('/profile', authenticateToken, getProfile);
+authRouter.post('/resendotp', authenticateToken, resendOTP);
+authRouter.get('/profile', authenticateToken, checkUserVerification, getProfile);
 
 export default authRouter;

@@ -1,10 +1,17 @@
 import { Router } from 'express';
 import { bookSession } from './controller';
-import { authenticateToken, authorizeRole } from '../../middlewares/auth';
+import { authenticateToken, authorizeRole, checkUserVerification } from '../../middlewares/auth';
 import { bookSessionvalidator } from './validator';
 
 const bookingsRouter = Router();
 
-bookingsRouter.post('/book', authenticateToken, bookSessionvalidator, authorizeRole(['user']), bookSession);
+bookingsRouter.post(
+  '/book',
+  authenticateToken,
+  bookSessionvalidator,
+  authorizeRole(['user']),
+  checkUserVerification,
+  bookSession,
+);
 
 export default bookingsRouter;

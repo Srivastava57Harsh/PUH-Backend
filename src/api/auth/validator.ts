@@ -2,9 +2,9 @@ import { NextFunction, Request, Response } from 'express';
 import LoggerInstance from '../../loaders/logger';
 import { loginSchema, signupSchema, verifyOTPSchema } from './schema';
 
-export async function loginValidator(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function signUpValidator(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    req.body = await loginSchema.validate(req.body, { stripUnknown: true });
+    req.body = await signupSchema.validate(req.body, { stripUnknown: true });
     next();
   } catch (e) {
     LoggerInstance.error(e);
@@ -15,9 +15,9 @@ export async function loginValidator(req: Request, res: Response, next: NextFunc
   }
 }
 
-export async function signUpValidator(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function loginValidator(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    req.body = await signupSchema.validate(req.body, { stripUnknown: true });
+    req.body = await loginSchema.validate(req.body, { stripUnknown: true });
     next();
   } catch (e) {
     LoggerInstance.error(e);
@@ -41,15 +41,15 @@ export async function signUpValidator(req: Request, res: Response, next: NextFun
 //   }
 // }
 
-export async function otpPayloadValidator(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    req.body = await verifyOTPSchema.validate(req.body, { stripUnknown: true });
-    next();
-  } catch (e) {
-    LoggerInstance.error(e);
-    res.status(422).json({
-      message: 'OTP payload validation failed',
-      error: e.errors.map(error => error),
-    });
-  }
-}
+// export async function otpPayloadValidator(req: Request, res: Response, next: NextFunction): Promise<void> {
+//   try {
+//     req.body = await verifyOTPSchema.validate(req.body, { stripUnknown: true });
+//     next();
+//   } catch (e) {
+//     LoggerInstance.error(e);
+//     res.status(422).json({
+//       message: 'OTP payload validation failed',
+//       error: e.errors.map(error => error),
+//     });
+//   }
+// }

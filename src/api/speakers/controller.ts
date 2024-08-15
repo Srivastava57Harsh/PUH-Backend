@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import database from '../../loaders/database';
 import { AuthenticatedRequest } from './model';
 import LoggerInstance from '../../loaders/logger';
+import { ObjectId } from 'mongodb';
 
 export async function setupProfile(req: AuthenticatedRequest, res: Response) {
   try {

@@ -58,31 +58,64 @@ export async function getProfile(req: AuthenticatedRequest, res: Response) {
   try {
     const id = req.user.id;
     const user = await (await database())
-      .collection('users')
-      .findOne({ _id: new ObjectId(id) }, { projection: { email: 1, name: 1, id: 1, role: 1 } });
-    if (!user) {
-      throw {
-        message: 'User does not exist',
-        status: 404,
-      };
-    }
-    res.status(201).json(user);
+      .collection('profiles')
+      .findOne(
+        { _id: new ObjectId(id) },
+        { projection: { email: 1, firstName: 1, lastName: 1, id: 1, role: 1, isVerified: 1 } },
+      );
+
+    res.status(200).json(user);
   } catch (error) {
     LoggerInstance.error(error);
     res.status(500).json({ message: error.message });
   }
 }
 
-export async function verifyOtp(req: Request, res: Response) {
+export async function verifyOtp(req: AuthenticatedRequest, res: Response) {
   try {
-    const { email, otp } = req.body;
+    const id = req.user.id;
+    const usersCollection = (await database()).collection('profiles');
 
-    if (!email || !otp) {
-      return res.status(400).json({ message: 'Email and OTP are required' });
+    const user = await usersCollection.findOne({ _id: new ObjectId(id) });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    const result = await verifyOTP(email, otp);
+    if (user.isVerified) {
+      return res.status(400).json({ message: 'User is already verified.' });
+    }
+
+    const { otp } = req.body;
+
+    if (!otp) {
+      return res.status(400).json({ message: 'OTP is required' });
+    }
+
+    const result = await verifyOTP(user.email, otp);
     res.status(200).json({ message: result });
+  } catch (error) {
+    LoggerInstance.error(error);
+    res.status(500).json({ message: error.message });
+  }
+}
+
+export async function resendOTP(req: AuthenticatedRequest, res: Response) {
+  try {
+    const id = req.user.id;
+    const usersCollection = (await database()).collection('profiles');
+
+    const user = await usersCollection.findOne({ _id: new ObjectId(id) });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: 'User is already verified.' });
+    }
+
+    await sendOTP(user.email);
+
+    res.status(200).json({ message: 'OTP has been resent to your email.' });
   } catch (error) {
     LoggerInstance.error(error);
     res.status(500).json({ message: error.message });
