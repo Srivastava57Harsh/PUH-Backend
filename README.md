@@ -1,3 +1,8 @@
+**© [2024] [Harsh Srivastava] All rights reserved.**
+
+This code is provided for educational and reference purposes only. Unauthorized use, duplication, or distribution of this code is prohibited. If you intend to use this code, please contact the author for permission.
+
+
 # Plateup Backend
 
 ## Overview
